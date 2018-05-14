@@ -1,0 +1,19 @@
+ip: 192.168.10.10
+memory: 2048
+cpus: 1
+provider: virtualbox
+authorize: ~/.ssh/id_rsa.pub
+keys:
+    - ~/.ssh/id_rsa
+folders:
+    -
+        map: /Users/joeferguson/PhpstormProjects/cake-quickstart
+        to: /home/vagrant/cake
+sites:
+    -
+        map: cake.test
+        to: /home/vagrant/cake/webroot
+databases:
+    - homestead
+name: cake
+hostname: cake
