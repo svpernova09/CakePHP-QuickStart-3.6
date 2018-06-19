@@ -67,10 +67,20 @@ Router::scope('/', function(RouteBuilder $routes)
         'id' => '[0-9]+',
     ])->setMethods(['GET']);
 
-$routes->connect('/widgets/', [
-    'controller' => 'Widgets',
-    'action' => 'index',
-])->setMethods(['GET']);
+    $routes->connect('/widgets/', [
+        'controller' => 'Widgets',
+        'action' => 'index',
+    ])->setMethods(['GET']);
+
+    $routes->connect('/widgets/add', [
+        'controller' => 'Widgets',
+        'action' => 'add',
+    ])->setMethods(['GET']);
+
+    $routes->connect('/widgets/add', [
+        'controller' => 'Widgets',
+        'action' => 'create',
+    ])->setMethods(['POST']);
 
     /**
      * ...and connect the rest of 'Pages' controller's URLs.
@@ -95,9 +105,3 @@ $routes->connect('/widgets/', [
      */
     $routes->fallbacks(DashedRoute::class);
 });
-
-/**
- * Load all plugin routes. See the Plugin documentation on
- * how to customize the loading of plugin routes.
- */
-Plugin::routes();

@@ -15,14 +15,9 @@
 
 namespace App\Controller;
 
-use Cake\Http\Response;
-use Cake\ORM\Locator\LocatorAwareTrait;
-use Cake\Routing\Router;
-use Cake\Core\Configure;
-use Cake\Http\Exception\ForbiddenException;
-use Cake\Http\Exception\NotFoundException;
-use Cake\ORM\Locator\TableLocator;
-use Cake\View\Exception\MissingTemplateException;
+use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
+
 
 /**
  * Static content controller
@@ -33,11 +28,13 @@ use Cake\View\Exception\MissingTemplateException;
  */
 class WidgetsController extends AppController
 {
-
     public function view($id)
     {
-        var_dump($id);
-        exit();
+        $widget = $this->getTableLocator()->get('Widgets');
+        $widget = $widget->get($id);
+
+        $this->set(['widget' => $widget]);
+        $this->render();
     }
 
     public function index()
@@ -45,9 +42,58 @@ class WidgetsController extends AppController
         $widgets = $this->getTableLocator()->get('Widgets');
         $results = $widgets->find()->toArray();
 
-        return new Response([
-            'type' => 'json',
-            'body' => json_encode($results)
-        ]);
+        $this->set(['widgets' => $results]);
+        $this->render();
     }
+
+    public function add()
+    {
+        $this->render();
+    }
+
+public function create()
+{
+$validator = new Validator();
+$validator
+    ->requirePresence('name')
+    ->notEmpty('name', 'Please fill this field')
+    ->add('name', [
+        'length' => [
+            'rule' => ['minLength', 5],
+            'message' => 'Names need to be at least 5 characters long',
+        ]
+    ])
+    ->requirePresence('price')
+    ->notEmpty('price', 'Please fill in the price.')
+    ->integer('price')
+    ->requirePresence('description')
+    ->notEmpty('description', 'Please fill in the price.');
+
+$errors = $validator->errors($this->request->getData());
+
+if (empty($errors))
+{
+    $widgets = $this->getTableLocator()->get('Widgets');
+    $widget = $widgets->newEntity();
+
+    $widget->name = filter_var($this->request->getData('name'),
+        FILTER_SANITIZE_STRING
+    );
+    $widget->price = filter_var($this->request->getData('price'),
+        FILTER_SANITIZE_NUMBER_INT
+    );
+    $widget->description = filter_var($this->request->getData('description'),
+        FILTER_SANITIZE_STRING
+    );
+
+    $widget->created = time();
+    $widget->modified = time();
+
+    if ($widgets->save($widget)) {
+        return $this->redirect('/widgets/' . $widget->id);
+    }
+}
+
+}
+    
 }
